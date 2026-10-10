@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Medical AI Chatbot</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="chat-container">
+
+        <div class="chat-header">
+            <div>
+                <h2>🩺 Medical AI Chatbot</h2>
+                <p>Simple Health Information Assistant</p>
+            </div>
+        </div>
+
+        <div id="chat-box" class="chat-box">
+
+            <div class="message bot-message">
+                <div class="message-content">
+                    Hello! 👋<br><br>
+                    I am a Medical AI Chatbot. You can ask me about
+                    common health topics such as fever, headache, cough,
+                    cold, diabetes, blood pressure, and general health tips.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="user-input"
+                placeholder="Type your health question..."
+                autocomplete="off"
+            >
+
+            <button onclick="sendMessage()">
+                Send
+            </button>
+
+        </div>
+
+        <div class="disclaimer">
+            ⚠️ This chatbot provides general health information only.
+            It is not a substitute for a qualified medical professional.
+        </div>
+
+    </div>
+
+    <script>
+
+        const input = document.getElementById("user-input");
+
+        input.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+
+        function addMessage(message, sender) {
+
+            const chatBox = document.getElementById("chat-box");
+
+            const messageDiv = document.createElement("div");
+
+            if (sender === "user") {
+                messageDiv.className = "message user-message";
+            } else {
+                messageDiv.className = "message bot-message";
+            }
+
+            const contentDiv = document.createElement("div");
+
+            contentDiv.className = "message-content";
+
+            contentDiv.innerText = message;
+
+            messageDiv.appendChild(contentDiv);
+
+            chatBox.appendChild(messageDiv);
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+
+        async function sendMessage() {
+
+            const message = input.value.trim();
+
+            if (message === "") {
+                return;
+            }
+
+            addMessage(message, "user");
+
+            input.value = "";
+
+            try {
+
+                const response = await fetch("/chat", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        message: message
+                    })
+
+                });
+
+                const data = await response.json();
+
+                addMessage(data.response, "bot");
+
+            }
+
+            catch (error) {
+
+                addMessage(
+                    "Sorry, something went wrong. Please try again.",
+                    "bot"
+                );
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
